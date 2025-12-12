@@ -112,6 +112,112 @@
   animation: spin 1s linear infinite;
 }
 
+/* Barre de recherche */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-6);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.searchBar:focus-within {
+  border-color: var(--edf-orange);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+
+.searchIcon {
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-900);
+  background: transparent;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: var(--color-gray-400);
+}
+
+/* Skeleton loading */
+.skeletonCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-gray-100);
+}
+
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.skeletonBadge {
+  width: 80px;
+  height: 24px;
+  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonDate {
+  width: 100px;
+  height: 14px;
+  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.skeletonLine {
+  height: 16px;
+  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonLineShort {
+  width: 60%;
+  height: 16px;
+  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.purple {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -173,14 +279,93 @@
   text-align: right;
 }
 
+/* Concentrateur row - cliquable */
+.concentrateurRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: var(--spacing-3);
+}
+
+.concentrateurRow:hover {
+  background-color: var(--color-gray-100);
+}
+
+.concentrateurInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.concentrateurInfo strong {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-900);
+  font-family: monospace;
+}
+
+.modele {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}
+
+.arrowIcon {
+  color: var(--color-gray-400);
+  transition: transform var(--transition-fast);
+}
+
+.concentrateurRow:hover .arrowIcon {
+  transform: translateX(4px);
+  color: var(--edf-orange);
+}
+
+/* State transition */
+.stateTransition {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  background-color: rgba(255, 107, 0, 0.05);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  margin-bottom: var(--spacing-2);
+}
+
+.stateOld {
+  color: var(--color-gray-500);
+  text-decoration: line-through;
+}
+
+.stateNew {
+  color: var(--edf-orange);
+  font-weight: 600;
+}
+
+.stateTransition svg {
+  color: var(--color-gray-400);
+}
+
+/* Info icon */
+.infoIcon {
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+}
+
 .commentSection {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
   margin-top: var(--spacing-2);
   padding-top: var(--spacing-2);
   border-top: 1px dashed var(--color-gray-200);
 }
 
 .commentText {
-  margin-top: var(--spacing-1);
+  margin: 0;
   font-size: var(--font-size-sm);
   color: var(--color-gray-700);
   font-style: italic;

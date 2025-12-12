@@ -45,13 +45,13 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--color-blue-50);
-  border: 1px solid var(--color-blue-200);
+  background: white;
+  border: 2px solid var(--edf-blue, #0055a4);
   border-radius: 8px;
 }
 
 .boSelector svg {
-  color: var(--edf-blue);
+  color: var(--edf-blue, #0055a4);
 }
 
 .boSelect {
@@ -59,9 +59,10 @@
   border: none;
   background: transparent;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--edf-blue);
+  font-weight: 600;
+  color: var(--edf-blue, #0055a4);
   cursor: pointer;
+  min-width: 120px;
 }
 
 .boSelect:focus {
@@ -249,11 +250,25 @@
   gap: 0.5rem;
 }
 
-.loading,
-.empty {
+.loading {
   text-align: center;
   padding: 3rem !important;
   color: var(--text-secondary);
+}
+
+.emptyCell {
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+.emptyMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  background: #f8fafc;
 }
 
 .footer {
@@ -266,10 +281,22 @@
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
+    overflow-x: hidden;
   }
 
   .header {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .boSelector {
+    width: 100%;
+    justify-content: center;
   }
 
   .filters {
@@ -282,15 +309,35 @@
 
   .tableContainer {
     overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 550px;
   }
 
   .table th,
   .table td {
     padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.813rem;
+    white-space: nowrap;
   }
 
   .rowActions {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .rowActions button {
+    padding: 0.375rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statValue {
+    font-size: 1.5rem;
   }
 }

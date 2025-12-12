@@ -14,7 +14,7 @@ import {
   Scan
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/common';
+import { Button, BarcodeScanner } from '../../components/common';
 import { magasinService, ConcentrateurCreate, SelectOption, ReceptionResult } from '../../services/magasin.service';
 import styles from './ReceptionCartons.module.css';
 
@@ -53,6 +53,10 @@ export function ReceptionCartons() {
   
   // Résultat
   const [result, setResult] = useState<ReceptionResult | null>(null);
+  
+  // Scanner QR
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanTarget, setScanTarget] = useState<'carton' | 'concentrateur'>('carton');
 
   // Charger les opérateurs au montage
   useEffect(() => {
@@ -80,8 +84,28 @@ export function ReceptionCartons() {
   // ============================================
   const handleCartonModeSelect = (mode: InputMode) => {
     setInputMode(mode);
-    setStep('carton_info');
+    if (mode === 'scan') {
+      setScanTarget('carton');
+      setShowScanner(true);
+    } else {
+      setStep('carton_info');
+    }
     setError(null);
+  };
+
+  const handleScanResult = (result: string) => {
+    setShowScanner(false);
+    if (scanTarget === 'carton') {
+      setNumeroCarton(result);
+      setStep('carton_info');
+    } else {
+      setCurrentNumeroSerie(result);
+    }
+  };
+
+  const handleOpenConcentrateurScanner = () => {
+    setScanTarget('concentrateur');
+    setShowScanner(true);
   };
 
   // ============================================
@@ -217,17 +241,23 @@ export function ReceptionCartons() {
         {/* Indicateur d'étapes */}
         <div className={styles.stepper}>
           <div className={`${styles.stepItem} ${step === 'carton_mode' || step === 'carton_info' ? styles.active : ''} ${['concentrateurs', 'validation', 'success'].includes(step) ? styles.completed : ''}`}>
-            <span className={styles.stepNumber}>1</span>
+            <span className={styles.stepNumber}>
+              {['concentrateurs', 'validation', 'success'].includes(step) ? <CheckCircle size={16} /> : '1'}
+            </span>
             <span className={styles.stepLabel}>Carton</span>
           </div>
           <div className={styles.stepLine}></div>
           <div className={`${styles.stepItem} ${step === 'concentrateurs' ? styles.active : ''} ${['validation', 'success'].includes(step) ? styles.completed : ''}`}>
-            <span className={styles.stepNumber}>2</span>
+            <span className={styles.stepNumber}>
+              {['validation', 'success'].includes(step) ? <CheckCircle size={16} /> : '2'}
+            </span>
             <span className={styles.stepLabel}>Concentrateurs</span>
           </div>
           <div className={styles.stepLine}></div>
           <div className={`${styles.stepItem} ${step === 'validation' ? styles.active : ''} ${step === 'success' ? styles.completed : ''}`}>
-            <span className={styles.stepNumber}>3</span>
+            <span className={styles.stepNumber}>
+              {step === 'success' ? <CheckCircle size={16} /> : '3'}
+            </span>
             <span className={styles.stepLabel}>Validation</span>
           </div>
         </div>
@@ -321,9 +351,9 @@ export function ReceptionCartons() {
                 <div className={styles.modeToggle}>
                   <button 
                     className={`${styles.toggleBtn} ${concentrateurMode === 'scan' ? styles.active : ''}`}
-                    onClick={() => setConcentrateurMode('scan')}
+                    onClick={handleOpenConcentrateurScanner}
                   >
-                    <Scan size={16} /> Scan
+                    <Scan size={16} /> Scanner
                   </button>
                   <button 
                     className={`${styles.toggleBtn} ${concentrateurMode === 'manual' ? styles.active : ''}`}
@@ -547,6 +577,21 @@ export function ReceptionCartons() {
               </Button>
               <Button variant="primary" onClick={() => navigate('/magasin/stock')}>
                 Voir le stock
+              </Button>
+            </div>
+          </div>
+        )}
+        {/* Modal Scanner */}
+        {showScanner && (
+          <div className={styles.scannerModal}>
+            <div className={styles.scannerOverlay} onClick={() => setShowScanner(false)} />
+            <div className={styles.scannerContent}>
+              <BarcodeScanner
+                onScan={handleScanResult}
+                onError={(err) => setError(err)}
+              />
+              <Button variant="outline" onClick={() => setShowScanner(false)} style={{ marginTop: '1rem' }}>
+                Annuler
               </Button>
             </div>
           </div>

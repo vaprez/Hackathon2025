@@ -12,7 +12,7 @@ export const authService = {
     
     // Appel direct au backend pour éviter les problèmes de proxy
     const response = await axios.post<LoginResponse>(
-      'http://localhost:8000/api/v1/auth/login',
+      'http://192.168.27.20:8000/api/v1/auth/login',
       params.toString(),
       {
         headers: {

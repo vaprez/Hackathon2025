@@ -93,7 +93,7 @@ export function ConcentrateurDetail() {
   const handleExportCSV = () => {
     if (!concentrateur || historique.length === 0) return;
     
-    const headers = ['Date', 'Type', 'Ancien État', 'Nouvel État', 'Ancienne Affectation', 'Nouvelle Affectation', 'Commentaire'];
+    const headers = ['Date', 'Type', 'Ancien Etat', 'Nouvel Etat', 'Ancienne Affectation', 'Nouvelle Affectation', 'Commentaire'];
     const rows = historique.map(action => [
       new Date(action.date_action).toLocaleString('fr-FR'),
       action.type_action,
@@ -104,7 +104,9 @@ export function ConcentrateurDetail() {
       action.commentaire || ''
     ]);
     
-    const csv = [headers, ...rows].map(row => row.join(';')).join('\n');
+    // Ajouter BOM UTF-8 pour Excel
+    const BOM = '\uFEFF';
+    const csv = BOM + [headers, ...rows].map(row => row.join(';')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-4);
-  background: linear-gradient(135deg, var(--edf-blue) 0%, var(--edf-blue-dark) 100%);
+  background: linear-gradient(135deg, #e8f4f8 0%, #f8f9fa 100%);
 }
 
 .card {
@@ -12,15 +12,27 @@
   max-width: 400px;
   background-color: var(--color-white);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 10px 40px rgba(0, 61, 122, 0.15);
   overflow: hidden;
+  border: 1px solid rgba(0, 61, 122, 0.08);
 }
 
 .header {
   padding: var(--spacing-8) var(--spacing-6) var(--spacing-6);
   text-align: center;
-  background: linear-gradient(135deg, var(--edf-orange) 0%, var(--edf-orange-dark) 100%);
+  background: linear-gradient(135deg, var(--edf-blue) 0%, var(--edf-blue-dark) 100%);
   color: var(--color-white);
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--edf-orange) 0%, transparent 100%);
 }
 
 .logo {
@@ -29,9 +41,10 @@
   justify-content: center;
   width: 72px;
   height: 72px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
   margin-bottom: var(--spacing-4);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .title {

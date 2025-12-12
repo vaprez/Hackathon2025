@@ -10,7 +10,7 @@ import {
   Scan
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/common';
+import { Button, BarcodeScanner } from '../../components/common';
 import { boService } from '../../services/bo.service';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './ReceptionBO.module.css';
@@ -28,11 +28,22 @@ export function ReceptionBO() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   const handleModeSelect = (mode: InputMode) => {
     setInputMode(mode);
-    setStep('input');
+    if (mode === 'scan') {
+      setShowScanner(true);
+    } else {
+      setStep('input');
+    }
     setError(null);
+  };
+
+  const handleScanResult = (result: string) => {
+    setNumeroSerie(result);
+    setShowScanner(false);
+    setStep('input');
   };
 
   const handleReception = async () => {
@@ -101,13 +112,23 @@ export function ReceptionBO() {
             <div className={styles.cardBody}>
               <div className={styles.field}>
                 <label>Numero de serie</label>
+                {inputMode === 'scan' && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowScanner(true)}
+                    style={{ marginBottom: '1rem', width: '100%' }}
+                  >
+                    <Scan size={18} />
+                    Scanner avec caméra
+                  </Button>
+                )}
                 <input
                   type="text"
                   placeholder="Ex: CPL-BOU-20241211-ABC123"
                   value={numeroSerie}
                   onChange={(e) => setNumeroSerie(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleReception()}
-                  autoFocus
+                  autoFocus={inputMode === 'manual'}
                 />
               </div>
 
@@ -166,6 +187,21 @@ export function ReceptionBO() {
               </Button>
               <Button variant="primary" onClick={() => navigate('/bo/stock')}>
                 Voir le stock
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {showScanner && (
+          <div className={styles.scannerModal}>
+            <div className={styles.scannerOverlay} onClick={() => setShowScanner(false)} />
+            <div className={styles.scannerContent}>
+              <BarcodeScanner
+                onScan={handleScanResult}
+                onError={(err) => setError(err)}
+              />
+              <Button variant="outline" onClick={() => setShowScanner(false)} style={{ marginTop: '1rem' }}>
+                Annuler
               </Button>
             </div>
           </div>

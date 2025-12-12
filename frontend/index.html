@@ -2,15 +2,53 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- Icônes et Manifest -->
     <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#FF6B00" />
+    
+    <!-- Apple Touch Icons (iOS) -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
+    
+    <!-- Splash Screen iOS -->
+    <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+    
+    <!-- Viewport optimisé pour mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#003D7A" />
+    <meta name="msapplication-TileColor" content="#003D7A" />
+    <meta name="msapplication-navbutton-color" content="#003D7A" />
+    
+    <!-- iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="EDF Corse" />
-    <meta name="description" content="Application de suivi des concentrateurs CPL - EDF Corse" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Android Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- SEO -->
+    <meta name="description" content="Application de gestion des concentrateurs CPL pour agents terrain EDF Corse. Scanner, géolocaliser et suivre les concentrateurs en temps réel." />
+    <meta name="keywords" content="EDF, Corse, CPL, concentrateurs, gestion, terrain, scanner, géolocalisation" />
+    <meta name="author" content="EDF Corse" />
+    
+    <!-- Permissions Hints pour navigateurs modernes -->
+    <meta name="permission" content="camera" />
+    <meta name="permission" content="geolocation" />
+    
+    <!-- Désactiver la détection automatique -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <title>EDF Corse - Gestion CPL</title>
   </head>
   <body>

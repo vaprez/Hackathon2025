@@ -1,13 +1,17 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { storageService } from './storage.service';
 
-const API_BASE_URL = '/api';
+// Utilise VITE_API_URL si défini (pour accès mobile), sinon /api (proxy Vite pour PC)
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : '/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: import.meta.env.VITE_API_URL ? false : true,
 });
 
 api.interceptors.request.use(

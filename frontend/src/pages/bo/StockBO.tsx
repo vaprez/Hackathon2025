@@ -37,7 +37,7 @@ export function StockBO() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const defaultBo = user?.base_affectee || '';
+  const defaultBo = user?.base_affectee || 'BO Nord';
   
   const [selectedBo, setSelectedBo] = useState<string>(defaultBo);
   const [listeBo, setListeBo] = useState<string[]>([]);
@@ -49,17 +49,16 @@ export function StockBO() {
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<BOStats | null>(null);
 
+  // Liste des BO disponibles (statique)
+  const listeBosDisponibles = ['BO Nord', 'BO Sud', 'BO Centre', 'Magasin', 'Labo'];
+  
   // Charger la liste des BO pour l'admin
   useEffect(() => {
     if (isAdmin) {
-      boService.getListeBo()
-        .then(bos => {
-          setListeBo(bos);
-          if (bos.length > 0 && !selectedBo) {
-            setSelectedBo(bos[0]);
-          }
-        })
-        .catch(err => console.error('Erreur chargement liste BO:', err));
+      setListeBo(listeBosDisponibles);
+      if (!selectedBo) {
+        setSelectedBo(listeBosDisponibles[0]);
+      }
     }
   }, [isAdmin]);
 
@@ -217,7 +216,9 @@ export function StockBO() {
                 </tr>
               ) : concentrateurs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={styles.empty}>Aucun concentrateur</td>
+                  <td colSpan={6} className={styles.emptyCell}>
+                    <div className={styles.emptyMessage}>Aucun concentrateur</div>
+                  </td>
                 </tr>
               ) : (
                 concentrateurs.map((c) => (

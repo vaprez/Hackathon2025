@@ -48,7 +48,19 @@
 
 .cardHeader h2 {
   margin: 0;
-  font-size: 1.125rem;
+}
+
+.scannerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.scanActions {
+  display: flex;
+  gap: var(--spacing-3);
+  width: 100%;
 }
 
 .cardBody {

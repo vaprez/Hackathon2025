@@ -8,10 +8,11 @@ import {
   Loader2,
   ThumbsUp,
   ThumbsDown,
-  FileText
+  FileText,
+  Camera
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/common';
+import { Button, BarcodeScanner } from '../../components/common';
 import { concentrateursService } from '../../services/concentrateurs.service';
 import api from '../../services/api';
 import type { Concentrateur } from '../../types';
@@ -30,6 +31,7 @@ export function TestConcentrateur() {
   const [commentaire, setCommentaire] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   const handleScan = async () => {
     if (!numeroSerie.trim()) {
@@ -55,6 +57,12 @@ export function TestConcentrateur() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBarcodeScanned = (result: string) => {
+    setNumeroSerie(result);
+    setShowScanner(false);
+    handleScan();
   };
 
   const handleValidate = async () => {
@@ -108,33 +116,66 @@ export function TestConcentrateur() {
               <h2>Scanner le concentrateur</h2>
             </div>
             <div className={styles.cardBody}>
-              <div className={styles.field}>
-                <label>Numéro de série</label>
-                <input
-                  type="text"
-                  placeholder="Ex: CPL-BOU-20241211-ABC123"
-                  value={numeroSerie}
-                  onChange={(e) => setNumeroSerie(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleScan()}
-                  autoFocus
-                />
-              </div>
-              {error && (
-                <div className={styles.error}>
-                  <AlertTriangle size={16} />
-                  <span>{error}</span>
+              {showScanner ? (
+                <div className={styles.scannerSection}>
+                  <BarcodeScanner 
+                    onScan={handleBarcodeScanned}
+                    onError={(err) => setError(err)}
+                  />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowScanner(false)}
+                    style={{ marginTop: 'var(--spacing-4)' }}
+                  >
+                    Saisie manuelle
+                  </Button>
                 </div>
+              ) : (
+                <>
+                  <div className={styles.field}>
+                    <label>Numéro de série</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: CPL-BOU-20241211-ABC123"
+                      value={numeroSerie}
+                      onChange={(e) => setNumeroSerie(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleScan()}
+                      autoFocus
+                    />
+                  </div>
+                  {error && (
+                    <div className={styles.error}>
+                      <AlertTriangle size={16} />
+                      <span>{error}</span>
+                    </div>
+                  )}
+                  <div className={styles.scanActions}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowScanner(true)}
+                      style={{ flex: 1 }}
+                    >
+                      <Camera size={18} />
+                      Scanner avec caméra
+                    </Button>
+                    <Button 
+                      variant="primary" 
+                      onClick={handleScan} 
+                      disabled={loading || !numeroSerie.trim()}
+                      style={{ flex: 1 }}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 size={18} className={styles.spinning} />
+                          Vérification...
+                        </>
+                      ) : (
+                        'Vérifier'
+                      )}
+                    </Button>
+                  </div>
+                </>
               )}
-              <Button variant="primary" onClick={handleScan} disabled={loading || !numeroSerie.trim()}>
-                {loading ? (
-                  <>
-                    <Loader2 size={18} className={styles.spinning} />
-                    Vérification...
-                  </>
-                ) : (
-                  'Vérifier'
-                )}
-              </Button>
             </div>
           </div>
         )}

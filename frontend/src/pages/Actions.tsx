@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ClipboardList, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ClipboardList, RefreshCw, Search, ArrowRight, MapPin, MessageSquare } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { actionsService, ActionResponse } from '../services/actions.service';
 import styles from './Actions.module.css';
@@ -31,9 +32,22 @@ const actionTypeColors: Record<string, string> = {
 };
 
 export function Actions() {
+  const navigate = useNavigate();
   const [actions, setActions] = useState<ActionResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+
+  const filteredActions = actions.filter(action => {
+    if (!search) return true;
+    const searchLower = search.toLowerCase();
+    return (
+      action.type_action.toLowerCase().includes(searchLower) ||
+      action.concentrateur_id?.toLowerCase().includes(searchLower) ||
+      action.concentrateur?.numero_serie?.toLowerCase().includes(searchLower) ||
+      action.commentaire?.toLowerCase().includes(searchLower)
+    );
+  });
 
   const fetchActions = async () => {
     try {
@@ -89,25 +103,48 @@ export function Actions() {
           </button>
         </header>
 
+        {/* Barre de recherche */}
+        <div className={styles.searchBar}>
+          <Search size={18} className={styles.searchIcon} />
+          <input
+            type="search"
+            placeholder="Rechercher une action..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+
         {error && (
           <div className={styles.error}>
             {error}
           </div>
         )}
 
-        {loading && actions.length === 0 ? (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-            <p>Chargement...</p>
+        {loading ? (
+          <div className={styles.grid}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className={styles.skeletonCard}>
+                <div className={styles.skeletonHeader}>
+                  <div className={styles.skeletonBadge} />
+                  <div className={styles.skeletonDate} />
+                </div>
+                <div className={styles.skeletonBody}>
+                  <div className={styles.skeletonLine} />
+                  <div className={styles.skeletonLine} />
+                  <div className={styles.skeletonLineShort} />
+                </div>
+              </div>
+            ))}
           </div>
-        ) : actions.length === 0 ? (
+        ) : filteredActions.length === 0 ? (
           <div className={styles.empty}>
             <ClipboardList size={48} />
-            <p>Aucune action enregistrée</p>
+            <p>{search ? 'Aucune action trouvée' : 'Aucune action enregistrée'}</p>
           </div>
         ) : (
           <div className={styles.grid}>
-            {actions.map((action) => (
+            {filteredActions.map((action) => (
               <div key={action.id_action} className={styles.card}>
                 <div className={styles.cardHeader}>
                   <div className={styles.actionType}>
@@ -119,27 +156,46 @@ export function Actions() {
                 </div>
                 
                 <div className={styles.cardBody}>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Concentrateur:</span>
-                    {action.concentrateur ? (
-                      <span className={styles.value}>
-                        <strong>{action.concentrateur.numero_serie}</strong> ({action.concentrateur.modele || 'Concentrateur IOT'})
+                  {/* Concentrateur - cliquable */}
+                  <div 
+                    className={styles.concentrateurRow}
+                    onClick={() => {
+                      const id = action.concentrateur?.numero_serie || action.concentrateur_id;
+                      if (id) navigate(`/concentrateurs/${id}`);
+                    }}
+                  >
+                    <div className={styles.concentrateurInfo}>
+                      <strong>
+                        {action.concentrateur?.numero_serie || action.concentrateur_id || '-'}
+                      </strong>
+                      <span className={styles.modele}>
+                        {action.concentrateur?.modele || 'Concentrateur IOT'}
                       </span>
-                    ) : action.concentrateur_id ? (
-                      <span className={styles.value}>{action.concentrateur_id}</span>
-                    ) : (
-                      <span className={styles.value}>-</span>
+                    </div>
+                    {(action.concentrateur || action.concentrateur_id) && (
+                      <ArrowRight size={16} className={styles.arrowIcon} />
                     )}
                   </div>
                   
+                  {/* Transition d'état */}
+                  {(action.ancien_etat || action.nouvel_etat) && (
+                    <div className={styles.stateTransition}>
+                      <span className={styles.stateOld}>{action.ancien_etat || '-'}</span>
+                      <ArrowRight size={14} />
+                      <span className={styles.stateNew}>{action.nouvel_etat || '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Base */}
                   <div className={styles.infoRow}>
-                    <span className={styles.label}>Base:</span>
-                    <span className={styles.value}>{action.nouvelle_affectation || action.ancienne_affectation || '-'}</span>
+                    <MapPin size={14} className={styles.infoIcon} />
+                    <span className={styles.value}>{action.nouvelle_affectation || action.ancienne_affectation || 'Non affecté'}</span>
                   </div>
                   
+                  {/* Commentaire */}
                   {action.commentaire && (
                     <div className={styles.commentSection}>
-                      <span className={styles.label}>Commentaire:</span>
+                      <MessageSquare size={14} className={styles.infoIcon} />
                       <p className={styles.commentText}>{action.commentaire}</p>
                     </div>
                   )}

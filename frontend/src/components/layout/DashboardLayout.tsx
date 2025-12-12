@@ -6,9 +6,8 @@ import {
   LogOut, 
   LayoutDashboard, 
   Package, 
-  ClipboardList,
+  History,
   Map,
-  Smartphone,
   User,
   Menu,
   X,
@@ -32,7 +31,7 @@ const navItems = [
   { path: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { path: '/inventaire', label: 'Inventaire', icon: Package },
   { path: '/map', label: 'Carte', icon: Map },
-  { path: '/actions', label: 'Actions', icon: ClipboardList },
+  { path: '/actions', label: 'Mes Actions', icon: History },
 ];
 
 const magasinItems = [
@@ -186,17 +185,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               })}
             </>
           )}
-          
-          <div className={styles.navDivider} />
-          
-          <Link
-            to="/mobile/scan"
-            className={styles.navItem}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <Smartphone size={20} />
-            <span>Mode Mobile</span>
-          </Link>
         </nav>
 
         <div className={styles.sidebarFooter}>

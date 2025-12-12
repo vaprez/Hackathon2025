@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   RotateCcw, 
@@ -7,10 +7,12 @@ import {
   AlertTriangle,
   Loader2,
   Keyboard,
-  Scan
+  Scan,
+  Camera,
+  X
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/common';
+import { Button, BarcodeScanner } from '../../components/common';
 import { boService } from '../../services/bo.service';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './DeposeConcentrateur.module.css';
@@ -26,14 +28,46 @@ export function DeposeConcentrateur() {
   const [step, setStep] = useState<'mode' | 'input' | 'success'>('mode');
   const [inputMode, setInputMode] = useState<InputMode>('scan');
   const [numeroSerie, setNumeroSerie] = useState(searchParams.get('numero_serie') || '');
+  const [commentaire, setCommentaire] = useState('');
+  const [photo, setPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleModeSelect = (mode: InputMode) => {
     setInputMode(mode);
-    setStep('input');
+    if (mode === 'scan') {
+      setShowScanner(true);
+    } else {
+      setStep('input');
+    }
     setError(null);
+  };
+
+  const handleScanResult = (result: string) => {
+    setNumeroSerie(result);
+    setShowScanner(false);
+    setStep('input');
   };
 
   const handleDepose = async () => {
@@ -46,7 +80,10 @@ export function DeposeConcentrateur() {
     setError(null);
 
     try {
-      const res = await boService.depose(numeroSerie.trim());
+      const res = await boService.depose(numeroSerie.trim(), {
+        commentaire: commentaire.trim() || undefined,
+        photo: photo || undefined
+      });
       setResult(res);
       setStep('success');
     } catch (err: any) {
@@ -60,6 +97,8 @@ export function DeposeConcentrateur() {
   const handleReset = () => {
     setStep('mode');
     setNumeroSerie('');
+    setCommentaire('');
+    setPhoto(null);
     setError(null);
     setResult(null);
   };
@@ -101,15 +140,63 @@ export function DeposeConcentrateur() {
             </div>
             <div className={styles.cardBody}>
               <div className={styles.field}>
-                <label>Numero de serie</label>
+                <label>Numero de serie *</label>
+                {inputMode === 'scan' && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowScanner(true)}
+                    style={{ marginBottom: '1rem', width: '100%' }}
+                  >
+                    <Scan size={18} />
+                    Scanner avec caméra
+                  </Button>
+                )}
                 <input
                   type="text"
                   placeholder="Ex: CPL-BOU-20241211-ABC123"
                   value={numeroSerie}
                   onChange={(e) => setNumeroSerie(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleDepose()}
-                  autoFocus
+                  autoFocus={inputMode === 'manual'}
                 />
+              </div>
+
+              <div className={styles.field}>
+                <label>Commentaire (optionnel)</label>
+                <textarea
+                  placeholder="Raison de la dépose, observations..."
+                  value={commentaire}
+                  onChange={(e) => setCommentaire(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              <div className={styles.photoField}>
+                <label>Photo (optionnel)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhotoCapture}
+                  ref={fileInputRef}
+                  className={styles.fileInput}
+                />
+                {!photo ? (
+                  <button 
+                    type="button" 
+                    className={styles.photoButton}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera size={20} />
+                    Prendre une photo
+                  </button>
+                ) : (
+                  <div className={styles.photoPreview}>
+                    <img src={photo} alt="Aperçu" />
+                    <button type="button" className={styles.removePhoto} onClick={removePhoto}>
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {error && (
@@ -163,6 +250,21 @@ export function DeposeConcentrateur() {
               </Button>
               <Button variant="primary" onClick={() => navigate('/bo/stock')}>
                 Voir le stock
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {showScanner && (
+          <div className={styles.scannerModal}>
+            <div className={styles.scannerOverlay} onClick={() => setShowScanner(false)} />
+            <div className={styles.scannerContent}>
+              <BarcodeScanner
+                onScan={handleScanResult}
+                onError={(err) => setError(err)}
+              />
+              <Button variant="outline" onClick={() => setShowScanner(false)} style={{ marginTop: '1rem' }}>
+                Annuler
               </Button>
             </div>
           </div>

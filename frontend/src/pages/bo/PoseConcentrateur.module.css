@@ -165,6 +165,79 @@
   font-family: monospace;
 }
 
+/* Champ photo */
+.photoField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.photoField > label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.fileInput {
+  display: none;
+}
+
+.photoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.photoButton:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: #eff6ff;
+}
+
+.photoPreview {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.photoPreview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.removePhoto {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.removePhoto:hover {
+  background: rgba(220, 38, 38, 0.9);
+}
+
 .error {
   display: flex;
   align-items: center;
@@ -248,4 +321,40 @@
   .successDetails {
     grid-template-columns: 1fr;
   }
+}
+
+/* Modal Scanner */
+.scannerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.scannerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.scannerContent {
+  position: relative;
+  z-index: 1001;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }

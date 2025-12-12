@@ -84,8 +84,12 @@ export const boService = {
     return response.data;
   },
 
-  async pose(numeroSerie: string): Promise<ActionResult> {
-    const response = await api.post<ActionResult>('/bo/pose', { numero_serie: numeroSerie });
+  async pose(numeroSerie: string, options?: { commentaire?: string; photo?: string }): Promise<ActionResult> {
+    const response = await api.post<ActionResult>('/bo/pose', { 
+      numero_serie: numeroSerie,
+      commentaire: options?.commentaire,
+      photo: options?.photo
+    });
     // Invalider le cache après une action
     cacheService.invalidateResource(CACHE_RESOURCES.BO);
     cacheService.invalidateResource(CACHE_RESOURCES.CONCENTRATEURS);
@@ -93,8 +97,12 @@ export const boService = {
     return response.data;
   },
 
-  async depose(numeroSerie: string): Promise<ActionResult> {
-    const response = await api.post<ActionResult>('/bo/depose', { numero_serie: numeroSerie });
+  async depose(numeroSerie: string, options?: { commentaire?: string; photo?: string }): Promise<ActionResult> {
+    const response = await api.post<ActionResult>('/bo/depose', { 
+      numero_serie: numeroSerie,
+      commentaire: options?.commentaire,
+      photo: options?.photo
+    });
     cacheService.invalidateResource(CACHE_RESOURCES.BO);
     cacheService.invalidateResource(CACHE_RESOURCES.CONCENTRATEURS);
     cacheService.invalidateResource(CACHE_RESOURCES.DASHBOARD);

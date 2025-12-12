@@ -3,7 +3,8 @@ import {
   FlaskConical, 
   RefreshCw, 
   AlertTriangle,
-  Clock
+  Clock,
+  QrCode
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
@@ -26,7 +27,15 @@ export function FileAttente() {
         affectation: 'Labo',
         limit: 100,
       });
-      setConcentrateurs(response.data);
+      
+      // Trier par ancienneté (plus vieux en premier = date_affectation la plus ancienne)
+      const sorted = [...response.data].sort((a, b) => {
+        const dateA = a.date_affectation ? new Date(a.date_affectation).getTime() : Date.now();
+        const dateB = b.date_affectation ? new Date(b.date_affectation).getTime() : Date.now();
+        return dateA - dateB; // Plus ancien en premier
+      });
+      
+      setConcentrateurs(sorted);
     } catch (err) {
       setError('Erreur lors du chargement');
       console.error(err);
@@ -70,6 +79,10 @@ export function FileAttente() {
             </div>
           </div>
           <div className={styles.headerActions}>
+            <Button variant="primary" size="sm" onClick={() => navigate('/labo/test')}>
+              <QrCode size={16} />
+              Scanner
+            </Button>
             <Button variant="outline" size="sm" onClick={fetchConcentrateurs} disabled={loading}>
               <RefreshCw size={16} className={loading ? styles.spinning : ''} />
             </Button>

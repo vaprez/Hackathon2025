@@ -15,7 +15,7 @@ import {
   Search
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { Button } from '../../components/common';
+import { Button, BarcodeScanner } from '../../components/common';
 import { transfertsService, Commande, CartonDisponible, ValidationResult } from '../../services/transferts.service';
 import styles from './TransfertBO.module.css';
 
@@ -36,6 +36,7 @@ export function TransfertBO() {
   const [validating, setValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [panelError, setPanelError] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
   
   // Filtres
   const [statutFilter, setStatutFilter] = useState<string>('en_attente');
@@ -71,15 +72,20 @@ export function TransfertBO() {
   };
 
   // Ouvrir le panel pour une commande
-  const handleRowClick = (commande: Commande) => {
-    if (commande.statut_commande !== 'en_attente') return;
-    
-    setSelectedCommande(commande);
-    setPanelOpen(true);
+  const handleScanResult = (result: string) => {
+    setNumeroCarton(result);
+    setShowScanner(false);
     setPanelMode('manual');
+  };
+
+  const handleRowClick = async (commande: Commande) => {
+    if (commande.statut_commande !== 'en_attente') return;
+    setSelectedCommande(commande);
     setNumeroCarton('');
-    setPanelError(null);
     setValidationResult(null);
+    setPanelError(null);
+    setPanelMode('manual');
+    setPanelOpen(true);
     fetchCartonsDisponibles();
   };
 
@@ -118,17 +124,22 @@ export function TransfertBO() {
     }
   };
 
-  // Filtrer les commandes
-  const filteredCommandes = commandes.filter(c => {
-    if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase();
-    return (
-      c.bo_demandeur.toLowerCase().includes(search) ||
-      c.demandeur_nom?.toLowerCase().includes(search) ||
-      c.demandeur_prenom?.toLowerCase().includes(search) ||
-      c.id_commande.toString().includes(search)
-    );
-  });
+  // Filtrer et trier les commandes
+  const filteredCommandes = commandes
+    .filter(c => {
+      if (!searchTerm) return true;
+      const search = searchTerm.toLowerCase();
+      return (
+        c.bo_demandeur.toLowerCase().includes(search) ||
+        c.demandeur_nom?.toLowerCase().includes(search) ||
+        c.demandeur_prenom?.toLowerCase().includes(search) ||
+        c.id_commande.toString().includes(search)
+      );
+    })
+    .sort((a, b) => {
+      // Trier par date décroissante (plus récent en premier)
+      return new Date(b.date_commande).getTime() - new Date(a.date_commande).getTime();
+    });
 
   // Formater la date
   const formatDate = (dateStr: string) => {
@@ -177,7 +188,7 @@ export function TransfertBO() {
             <Search size={18} />
             <input
               type="search"
-              placeholder="Rechercher une demande..."
+              placeholder="Rechercher par BO, demandeur ou N° commande..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -215,53 +226,89 @@ export function TransfertBO() {
               <p>Il n'y a pas de demande de transfert correspondant à vos critères</p>
             </div>
           ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>N°</th>
-                  <th>BO Demandeur</th>
-                  <th>Quantité</th>
-                  <th>Demandeur</th>
-                  <th>Date</th>
-                  <th>Statut</th>
-                  <th>Carton</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCommandes.map((commande) => (
-                  <tr 
-                    key={commande.id_commande}
-                    onClick={() => handleRowClick(commande)}
-                    className={commande.statut_commande === 'en_attente' ? styles.clickableRow : ''}
-                  >
-                    <td className={styles.idCell}>#{commande.id_commande}</td>
-                    <td>
-                      <div className={styles.boCell}>
-                        <MapPin size={14} />
-                        {commande.bo_demandeur}
-                      </div>
-                    </td>
-                    <td className={styles.quantityCell}>{commande.quantite}</td>
-                    <td>
-                      <div className={styles.userCell}>
-                        <User size={14} />
-                        {commande.demandeur_prenom} {commande.demandeur_nom}
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.dateCell}>
-                        <Clock size={14} />
-                        {formatDate(commande.date_commande)}
-                      </div>
-                    </td>
-                    <td>{getStatutBadge(commande.statut_commande)}</td>
-                    <td className={styles.cartonCell}>
-                      -
-                    </td>
+            <>
+              {/* Tableau desktop */}
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>BO Demandeur</th>
+                    <th>Quantité</th>
+                    <th>Demandeur</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Carton</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {filteredCommandes.map((commande) => (
+                    <tr 
+                      key={commande.id_commande}
+                      onClick={() => handleRowClick(commande)}
+                      className={commande.statut_commande === 'en_attente' ? styles.clickableRow : ''}
+                    >
+                      <td className={styles.idCell}>#{commande.id_commande}</td>
+                      <td>
+                        <div className={styles.boCell}>
+                          <MapPin size={14} />
+                          {commande.bo_demandeur}
+                        </div>
+                      </td>
+                      <td className={styles.quantityCell}>{commande.quantite}</td>
+                      <td>
+                        <div className={styles.userCell}>
+                          <User size={14} />
+                          {commande.demandeur_prenom} {commande.demandeur_nom}
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.dateCell}>
+                          <Clock size={14} />
+                          {formatDate(commande.date_commande)}
+                        </div>
+                      </td>
+                      <td>{getStatutBadge(commande.statut_commande)}</td>
+                      <td className={styles.cartonCell}>
+                        -
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Cartes mobile */}
+              <div className={styles.mobileCards}>
+                {filteredCommandes.map((commande) => (
+                  <div 
+                    key={commande.id_commande}
+                    className={`${styles.mobileCard} ${commande.statut_commande === 'en_attente' ? styles.clickable : ''}`}
+                    onClick={() => handleRowClick(commande)}
+                  >
+                    <div className={styles.cardHeader}>
+                      <span className={styles.cardId}>#{commande.id_commande}</span>
+                      {getStatutBadge(commande.statut_commande)}
+                    </div>
+                    <div className={styles.cardBody}>
+                      <div className={styles.cardMainInfo}>
+                        <MapPin size={16} />
+                        <span className={styles.cardBo}>{commande.bo_demandeur}</span>
+                        <span className={styles.cardQty}>{commande.quantite} unités</span>
+                      </div>
+                      <div className={styles.cardDetails}>
+                        <div className={styles.cardRow}>
+                          <User size={14} />
+                          <span>{commande.demandeur_prenom} {commande.demandeur_nom}</span>
+                        </div>
+                        <div className={styles.cardRow}>
+                          <Clock size={14} />
+                          <span>{formatDate(commande.date_commande)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -346,15 +393,28 @@ export function TransfertBO() {
                     {panelMode === 'scan' ? (
                       <div className={styles.scanZone}>
                         <QrCode size={64} />
-                        <p>Scannez le QR code du carton</p>
+                        <p>Scannez le code-barres du carton</p>
+                        <Button 
+                          variant="primary" 
+                          onClick={() => setShowScanner(true)}
+                          style={{ marginBottom: '1rem', width: '100%' }}
+                        >
+                          <QrCode size={18} />
+                          Scanner avec caméra
+                        </Button>
                         <input
                           type="text"
-                          placeholder="En attente du scan..."
+                          placeholder="Ou saisie au clavier / scanner USB..."
                           value={numeroCarton}
                           onChange={(e) => setNumeroCarton(e.target.value)}
-                          autoFocus
                           className={styles.scanInput}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && numeroCarton.trim()) {
+                              handleValidate();
+                            }
+                          }}
                         />
+                        <span className={styles.scanHint}>ou passez en mode manuel pour saisir</span>
                       </div>
                     ) : (
                       <div className={styles.manualZone}>
@@ -427,6 +487,22 @@ export function TransfertBO() {
                   </>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Scanner */}
+        {showScanner && (
+          <div className={styles.scannerModal}>
+            <div className={styles.scannerOverlay} onClick={() => setShowScanner(false)} />
+            <div className={styles.scannerContent}>
+              <BarcodeScanner
+                onScan={handleScanResult}
+                onError={(err) => setPanelError(err)}
+              />
+              <Button variant="outline" onClick={() => setShowScanner(false)} style={{ marginTop: '1rem' }}>
+                Annuler
+              </Button>
             </div>
           </div>
         )}

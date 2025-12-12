@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Package, 
   Search, 
   Download, 
   RefreshCw, 
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  ChevronRight
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Button } from '../../components/common';
@@ -31,6 +33,7 @@ const etatColors: Record<string, string> = {
 };
 
 export function StockMagasin() {
+  const navigate = useNavigate();
   const [concentrateurs, setConcentrateurs] = useState<Concentrateur[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +76,7 @@ export function StockMagasin() {
   }, [fetchConcentrateurs]);
 
   const handleExportCSV = () => {
-    const headers = ['Numéro Série', 'Modèle', 'Opérateur', 'État', 'Date Affectation', 'Carton'];
+    const headers = ['Numero Serie', 'Modele', 'Operateur', 'Etat', 'Date Affectation', 'Carton'];
     const rows = concentrateurs.map(c => [
       c.numero_serie,
       c.modele || '',
@@ -83,7 +86,9 @@ export function StockMagasin() {
       c.numero_carton || ''
     ]);
     
-    const csv = [headers, ...rows].map(row => row.join(';')).join('\n');
+    // Ajouter BOM UTF-8 pour Excel
+    const BOM = '\uFEFF';
+    const csv = BOM + [headers, ...rows].map(row => row.join(';')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -101,7 +106,8 @@ export function StockMagasin() {
     total: stats?.total ?? 0,
     enStock: stats?.en_stock ?? 0,
     enLivraison: stats?.en_livraison ?? 0,
-    nbCartons: stats?.nb_cartons ?? 0,
+    // Calculer le nombre de cartons basé sur les concentrateurs (4 par carton)
+    nbCartons: Math.ceil((stats?.total ?? 0) / 4),
   };
 
   return (
@@ -178,6 +184,7 @@ export function StockMagasin() {
           </div>
         )}
 
+        {/* Vue tableau pour desktop */}
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
@@ -201,7 +208,11 @@ export function StockMagasin() {
                 </tr>
               ) : (
                 concentrateurs.map((c) => (
-                  <tr key={c.numero_serie}>
+                  <tr 
+                    key={c.numero_serie} 
+                    className={styles.clickableRow}
+                    onClick={() => navigate(`/concentrateurs/${c.numero_serie}`)}
+                  >
                     <td className={styles.serial}>{c.numero_serie}</td>
                     <td>{c.modele || '-'}</td>
                     <td>{c.operateur}</td>
@@ -211,12 +222,58 @@ export function StockMagasin() {
                       </span>
                     </td>
                     <td>{c.numero_carton || '-'}</td>
-                    <td>{formatDate(c.date_affectation)}</td>
+                    <td className={styles.dateCell}>
+                      {formatDate(c.date_affectation)}
+                      <ChevronRight size={16} className={styles.rowArrow} />
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Vue cartes pour mobile */}
+        <div className={styles.mobileCards}>
+          {loading ? (
+            <div className={styles.loading}>Chargement...</div>
+          ) : concentrateurs.length === 0 ? (
+            <div className={styles.empty}>Aucun concentrateur</div>
+          ) : (
+            concentrateurs.map((c) => (
+              <div 
+                key={c.numero_serie} 
+                className={styles.mobileCard}
+                onClick={() => navigate(`/concentrateurs/${c.numero_serie}`)}
+              >
+                <div className={styles.cardHeader}>
+                  <span className={styles.cardSerial}>{c.numero_serie}</span>
+                  <span className={`${styles.badge} ${styles[etatColors[c.etat] || 'gray']}`}>
+                    {etatLabels[c.etat] || c.etat}
+                  </span>
+                </div>
+                <div className={styles.cardBody}>
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Modèle</span>
+                    <span>{c.modele || '-'}</span>
+                  </div>
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Opérateur</span>
+                    <span>{c.operateur}</span>
+                  </div>
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Carton</span>
+                    <span>{c.numero_carton || '-'}</span>
+                  </div>
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Date</span>
+                    <span>{formatDate(c.date_affectation)}</span>
+                  </div>
+                </div>
+                <ChevronRight size={20} className={styles.cardArrow} />
+              </div>
+            ))
+          )}
         </div>
 
         <div className={styles.footer}>

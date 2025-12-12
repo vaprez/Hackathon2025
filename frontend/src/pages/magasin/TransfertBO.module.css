@@ -417,6 +417,18 @@
   border-color: var(--edf-blue);
 }
 
+.scanInputReadonly {
+  background-color: var(--color-gray-100);
+  cursor: default;
+  caret-color: transparent;
+}
+
+.scanHint {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
 /* Zone manuelle */
 .manualZone {
   display: flex;
@@ -578,38 +590,198 @@
   to { transform: rotate(360deg); }
 }
 
+/* Vue cartes mobile - cachée par défaut */
+.mobileCards {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
+    overflow-x: hidden;
   }
 
   .header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .headerContent {
+    justify-content: flex-start;
+  }
+
+  .headerContent h1 {
+    font-size: 1.25rem;
   }
 
   .filters {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .searchBox {
     min-width: 100%;
   }
 
-  .tableContainer {
-    overflow-x: auto;
+  .filterGroup {
+    width: 100%;
   }
 
+  .filterGroup select {
+    flex: 1;
+  }
+
+  /* Cacher le tableau sur mobile */
   .table {
-    min-width: 700px;
+    display: none;
+  }
+
+  /* Afficher les cartes sur mobile */
+  .mobileCards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobileCard {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobileCard.clickable {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .mobileCard.clickable:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .cardId {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--edf-blue, #0055a4);
+  }
+
+  .cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cardMainInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .cardMainInfo svg {
+    color: var(--edf-orange, #ff6b00);
+  }
+
+  .cardBo {
+    font-weight: 600;
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .cardQty {
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .cardDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .cardRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.813rem;
+    color: #64748b;
+  }
+
+  .cardRow svg {
+    color: #94a3b8;
   }
 
   .slidePanel {
     max-width: 100%;
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .panelContent {
+    padding: 1rem;
   }
 
   .panelActions {
     flex-direction: column;
   }
+
+  .modeSelector {
+    flex-direction: column;
+  }
+
+  .modeBtn {
+    width: 100%;
+  }
+}
+
+/* Modal Scanner */
+.scannerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.scannerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.scannerContent {
+  position: relative;
+  z-index: 1101;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }

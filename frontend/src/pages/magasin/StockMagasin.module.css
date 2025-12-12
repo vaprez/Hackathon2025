@@ -180,6 +180,34 @@
   background: #f8fafc;
 }
 
+.clickableRow {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.clickableRow:hover {
+  background: #f0f9ff !important;
+}
+
+.dateCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rowArrow {
+  color: #94a3b8;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+
+.clickableRow:hover .rowArrow {
+  opacity: 1;
+  color: var(--edf-orange, #ff6b00);
+  transform: translateX(2px);
+}
+
 .serial {
   font-family: monospace;
   font-weight: 600;
@@ -232,6 +260,11 @@
   color: var(--text-secondary);
 }
 
+/* Vue cartes mobile - cachée par défaut */
+.mobileCards {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -239,6 +272,12 @@
 
   .header {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .filters {
@@ -251,15 +290,94 @@
 
   .filterGroup {
     flex-wrap: wrap;
+    width: 100%;
   }
 
+  .filterGroup select {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Cacher le tableau sur mobile */
   .tableContainer {
-    overflow-x: auto;
+    display: none;
   }
 
-  .table th,
-  .table td {
-    padding: 0.75rem 0.5rem;
+  /* Afficher les cartes sur mobile */
+  .mobileCards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobileCard {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .mobileCard:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .cardSerial {
+    font-family: monospace;
+    font-weight: 700;
     font-size: 0.875rem;
+    color: var(--edf-blue, #0055a4);
+  }
+
+  .cardBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .cardRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .cardLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .cardRow > span:last-child {
+    font-size: 0.875rem;
+    color: var(--text-primary, #1e293b);
+  }
+
+  .cardArrow {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statValue {
+    font-size: 1.5rem;
   }
 }
